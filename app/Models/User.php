@@ -49,6 +49,13 @@ class User extends Authenticatable implements FilamentUser
         ];
     }
 
+    public function projects()
+    {
+        return $this->belongsToMany(Project::class, 'project_user')
+            ->using(ProjectUser::class)
+            ->withTimestamps();
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
         return $this->hasPermissionTo('acess_admin');
