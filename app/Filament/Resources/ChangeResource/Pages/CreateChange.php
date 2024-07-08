@@ -9,4 +9,10 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateChange extends CreateRecord
 {
     protected static string $resource = ChangeResource::class;
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
+    
 }
