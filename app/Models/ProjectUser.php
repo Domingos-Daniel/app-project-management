@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 class ProjectUser extends Pivot
 {
     use HasFactory;
-    protected $table = 'project_user';
+    protected $table = 'project_users';
     protected $fillable = [
         'project_id',
         'user_id',

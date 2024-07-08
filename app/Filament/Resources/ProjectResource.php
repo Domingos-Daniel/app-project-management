@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ProjectResource\Pages;
 use App\Filament\Resources\ProjectResource\RelationManagers;
 use App\Models\Project;
+use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -17,7 +18,17 @@ class ProjectResource extends Resource
 {
     protected static ?string $model = Project::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-circle-stack';
+    protected static ?string $navigationGroup = 'Funcional';
+    protected static ?string $navigationLabel = 'Projeto';
+    protected static ?string $pluralModelLabel = 'Projectos';
+    protected static ?string $modelLabel = 'Projeto';
+
+    protected static ?int $navigationSort = 1;
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
 
     public static function form(Form $form): Form
     {
@@ -25,36 +36,68 @@ class ProjectResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('name')
                     ->required()
+                    ->autofocus()   
+                    ->label("Nome")
                     ->maxLength(255),
                 Forms\Components\Textarea::make('description')
-                    ->columnSpanFull(),
-                Forms\Components\TextInput::make('supervisor_id')
                     ->required()
-                    ->numeric(),
+                    ->label("Descrição")
+                    ->columnSpanFull(),
+                Forms\Components\Select::make('supervisor_id')
+                    ->label("Supervisor")
+                    ->options(User::all()->pluck('name', 'id'))
+                    ->preload()
+                    ->searchable()
+                    ->required()                
+                    ->native(false),
+
                 Forms\Components\DatePicker::make('end_date')
                     ->required(),
                 Forms\Components\DatePicker::make('actual_end_date'),
                 Forms\Components\TextInput::make('budget')
                     ->numeric(),
-                Forms\Components\TextInput::make('status')
-                    ->required()
-                    ->maxLength(255)
-                    ->default('em andamento'),
-                Forms\Components\TextInput::make('priority')
-                    ->required()
-                    ->maxLength(255)
-                    ->default('média'),
+                Forms\Components\Select::make('status')
+                    ->required()              
+                    ->native(false)
+                    ->label("Status")
+                    ->options([
+                        'em andamento' => 'em andamento',
+                    ])
+                    ->default('em andamento')
+                    ->searchable()
+                    ->disabled(true),
+                Forms\Components\Select::make('priority')
+                    ->required()              
+                    ->native(false)
+                    ->label("Prioridade")
+                    ->options([
+                        'baixa' => 'baixa',
+                        'media' => 'media',
+                        'alta' => 'alta',
+                    ])
+                    ->default('media')
+                    ->searchable(),
             ]);
     }
 
+    
+    
+        
     public static function table(Table $table): Table
-    {
+    {  
+        $hoje = date('Y-m-d');
+
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->searchable(),
+                    ->searchable()
+                    ->label("Nome")
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('supervisor_id')
-                    ->numeric()
+                    ->searchable()
+                    ->badge()
+                    ->getStateUsing(fn (Project $record) => User::find($record->supervisor_id)->name)
+                    ->label("Supervisor")
                     ->sortable(),
                 Tables\Columns\TextColumn::make('end_date')
                     ->date()
@@ -66,9 +109,47 @@ class ProjectResource extends Resource
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')
-                    ->searchable(),
+                    ->searchable()
+                    ->label("Status")
+                    ->badge()
+                    ->color(
+                        function (Project $record): string {
+                            $hoje = date('Y-m-d');
+                            if ($record->end_date < $hoje) {
+                                return 'danger';
+                            } else if ($record->end_date > $hoje) {
+                                return 'warning';
+                            }else{
+                                return 'success';
+                            }
+                        }
+                    )
+                    ->getStateUsing(function (Project $record) {
+                        $hoje = date('Y-m-d');
+                        if ($record->end_date < $hoje) {
+                            return 'Expirado';
+                        } else if ($record->end_date > $hoje) {
+                            return 'Em andamento';
+                        }else{
+                            return 'Terminado';
+                        }
+                    }),
                 Tables\Columns\TextColumn::make('priority')
-                    ->searchable(),
+                    ->searchable()
+                    ->label("Prioridade")
+                    ->sortable()
+                    ->badge()
+                    ->color(
+                        function (Project $record): string {
+                            if ($record->priority == 'baixa') {
+                                return 'success';
+                            } elseif ($record->priority == 'media') {
+                                return 'warning';
+                            } else {
+                                return 'danger';
+                            }
+                        }
+                    ),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

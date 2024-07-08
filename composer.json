@@ -9,6 +9,7 @@
         "filament/filament": "^3.2",
         "laravel/framework": "^11.9",
         "laravel/tinker": "^2.9",
+        "lucascudo/laravel-pt-br-localization": "^2.2",
         "spatie/laravel-permission": "^6.9"
     },
     "require-dev": {
