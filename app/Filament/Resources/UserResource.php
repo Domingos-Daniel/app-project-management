@@ -66,18 +66,23 @@ class UserResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->searchable(),
+                    ->searchable()
+                    ->label("Nome do Utilizador")
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('email')
-                    ->searchable(),
+                    ->searchable()
+                    ->label("Email"),
                 // Tables\Columns\TextColumn::make('email_verified_at')
                 //     ->dateTime()
                 //     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
+                    ->dateTime(format: 'd/m/Y H:i:s')
+                    ->label("Criado em")
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->dateTime(format: 'd/m/Y H:i:s')
+                    ->label("Actualizado em")
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
