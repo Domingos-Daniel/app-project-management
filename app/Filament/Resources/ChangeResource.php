@@ -38,6 +38,8 @@ use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Filament\Infolists\Infolist;
 
 use Filament\Support\Enums\FontWeight;
+use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Database\Eloquent\Model;
 
 class ChangeResource extends Resource
 {
@@ -49,6 +51,7 @@ class ChangeResource extends Resource
     protected static ?string $pluralModelLabel = 'Alterações';
     protected static ?string $modelLabel = 'Alteração';
 
+    protected static ?string $recordTitleAttribute = 'title';
     protected static ?int $navigationSort = 2;
 
     public static function getEloquentQuery(): Builder
@@ -368,6 +371,21 @@ class ChangeResource extends Resource
             'view' => Pages\ViewChange::route('/{record}'),
             'edit' => Pages\EditChange::route('/{record}/edit'),
         ];
+    }
+
+    public static function getGlobalSearchResultTitle(Model $record): string | Htmlable
+    {
+        return $record->title;
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['title', 'description'];
+    }
+
+    public static function getGlobalSearchResultUrl(Model $record): string
+    {
+        return ChangeResource::getUrl('view', ['record' => $record]);
     }
 
     protected function getRedirectUrl(): string

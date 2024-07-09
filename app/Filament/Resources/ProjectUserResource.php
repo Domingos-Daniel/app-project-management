@@ -9,8 +9,14 @@ use App\Models\ProjectUser;
 use App\Models\Role;
 use App\Models\User;
 use Filament\Forms;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\TextEntry\TextEntrySize;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
+use Filament\Support\Enums\FontWeight;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -123,6 +129,48 @@ class ProjectUserResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
+            ]);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+
+                Section::make('Informações do Projeto')
+                    ->schema([
+                        Grid::make()
+                            ->schema([
+                                TextEntry::make('project.name')
+                                    ->label('Projecto')
+                                    ->badge()
+                                    ->color('success')
+                                    ->weight(FontWeight::Bold)
+                                    ->size(TextEntrySize::Large),
+                                TextEntry::make('user.name')
+                                    ->label('Utilizador')
+                                    ->weight(FontWeight::Bold)
+                                    ->badge(),
+                            ])
+                            ->columns(2),
+
+                            Grid::make()
+                            ->schema([
+                                TextEntry::make('role.name')
+                                    ->label('Cargo')
+                                    ->weight(FontWeight::Bold)
+                                    ->badge(),
+                                TextEntry::make('hours_allocated')
+                                    ->label('Horas Alocadas')
+                                    ->weight(FontWeight::Bold)
+                                    ->badge(),
+                                TextEntry::make('assigned_at')
+                                    ->label('Data de Atribuição')
+                                    ->weight(FontWeight::Bold)
+                                    ->badge(),
+                            ])->columns(3),  
+                    ])
+                    ->columns(1),
             ]);
     }
 
