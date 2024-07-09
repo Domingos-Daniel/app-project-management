@@ -27,10 +27,12 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\TextEntry\TextEntrySize;
 use Filament\Tables\Actions\Action;
 use Illuminate\Database\Eloquent\Collection;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Filament\Infolists\Infolist;
+use Filament\Support\Enums\FontWeight;
 
 class ChangeResource extends Resource
 {
@@ -95,6 +97,7 @@ class ChangeResource extends Resource
                             TextInput::make('title')
                                 ->required()
                                 ->label("Título")
+                                ->minLength(5)
                                 ->maxLength(255),
                             MarkdownEditor::make('description')
                                 ->required()
@@ -118,12 +121,6 @@ class ChangeResource extends Resource
                                 ->directory('attachments')
                                 ->imageEditor()
                                 ->imageEditorMode(2)
-                                ->imageEditorAspectRatios([
-                                    null,
-                                    '16:9',
-                                    '4:3',
-                                    '1:1',
-                                ])
                                 ->reorderable(),
                             Textarea::make('reason')
                                 ->columnSpanFull(),
@@ -201,11 +198,12 @@ class ChangeResource extends Resource
                         ->label('Aprovar Selecionados')
                         ->action(
                             function (Collection $records) {
-                            foreach ($records as $record) {
-                                $record->approved = true;
-                                $record->save();
+                                foreach ($records as $record) {
+                                    $record->approved = true;
+                                    $record->save();
+                                }
                             }
-                        })
+                        )
                         ->requiresConfirmation()
                         ->visible(
                             function (Collection $records) {
@@ -224,48 +222,77 @@ class ChangeResource extends Resource
     public static function infolist(Infolist $infolist): Infolist
     {
         return $infolist
-        ->schema([
-            TextEntry::make('project.name')
-                ->label('Projecto'),
+            ->schema([
+                TextEntry::make('project.name')
+                    ->label('Projecto')
+                    ->badge()
+                    ->color('success')
+                    ->weight(FontWeight::Bold)
+                    ->size(TextEntrySize::Large),
                 //->url(fn (Change $record) => route('projects.show', $record->project_id)),
-            
-            TextEntry::make('user.name')
-                ->label('Utilizador'),
 
-            TextEntry::make('title')
-                ->label('Título')
-                ->extraAttributes(['class' => 'font-bold text-lg']),
+                TextEntry::make('user.name')
+                    ->label('Utilizador')
+                    ->weight(FontWeight::Bold)
+                    ->badge(),
+
+                TextEntry::make('title')
+                    ->label('Título')
+                    ->weight(FontWeight::Bold)
+                    ->size(TextEntrySize::Large)
+                    ->badge()
+                    ->color('info')
+                    ->extraAttributes(['class' => 'font-bold text-lg']),
+
+                TextEntry::make('approved')
+                    ->label('Aprovação')
+                    ->weight(FontWeight::Bold)
+                    ->icon(
+                        fn (Change $record) => $record->approved ? 'heroicon-o-check-circle' : 'heroicon-o-x-circle'
+                    )
+                    ->badge()
+                    ->getStateUsing(
+                        fn (Change $record) => $record->approved ? 'Aprovado' : 'Pendente'
+                    )
+                    ->color(
+                        fn (Change $record) => $record->approved ? 'success' : 'danger'
+                    )
+                    ->extraAttributes(['class' => 'text-gray-500'])
+                    ->visible(fn (Change $record) => $record->approved ? 'Aprovado' : 'Pendente'),
+
 
                 TextEntry::make('description')
-                ->label('Descrição')
-                ->columnSpanFull()
-                ->extraAttributes(['class' => 'prose']),
+                    ->label('Descrição')
+                    ->html()
+                    ->columnSpanFull()
+                    ->extraAttributes(['class' => 'prose']),
 
                 TextEntry::make('timestamp')
-                ->label('Data de Alteração')
-                //->displayFormat('d/m/Y H:i:s')
-                ->extraAttributes(['class' => 'text-gray-500']),
+                    ->label('Data de Alteração')
+                    //->displayFormat('d/m/Y H:i:s')
+                    ->extraAttributes(['class' => 'text-gray-500']),
 
-            ImageEntry::make('attachment')
-                ->label('Anexo')
-                ->square()
-                ->columnSpanFull()
-                
-                ->extraImgAttributes([
-                    'alt' => 'Logo',
-                    'loading' => 'lazy',
-                ])
-                ->width(200),
-                //->directory('attachments')
-                //->downloadable(),
+                ImageEntry::make('attachment')
+                    ->label('Anexo')
+                    ->square()
+                    ->disk('public')
+                    ->extraAttributes(['class' => 'rounded-md shadow border border-gray-300 dark:border-gray-700 dark:bg-gray-900'])
+                    ->columnSpanFull()
+
+                    ->extraImgAttributes([
+                        'alt' => 'Anexos da Alteração',
+                        'loading' => 'lazy',
+                    ])
+                    ->width('100%')
+                    ->height('full'),
 
                 TextEntry::make('reason')
-                ->label('Motivo')
-                ->columnSpanFull()
-                ->extraAttributes(['class' => 'text-gray-700']),
-        ])
-        ->columns(2);
-}
+                    ->label('Motivo')
+                    ->columnSpanFull()
+                    ->extraAttributes(['class' => 'text-gray-700']),
+            ])
+            ->columns(2);
+    }
 
     public static function getRelations(): array
     {
