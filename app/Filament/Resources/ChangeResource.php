@@ -25,13 +25,18 @@ use Filament\Forms\Components\MarkdownEditor;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
+use Filament\Infolists\Components\Actions as InfolistActions;
+use Filament\Infolists\Components\Actions\Action as InfoListAction;
+use Filament\Infolists\Components\Grid;
 use Filament\Infolists\Components\ImageEntry;
+use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\TextEntry\TextEntrySize;
 use Filament\Tables\Actions\Action;
 use Illuminate\Database\Eloquent\Collection;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Filament\Infolists\Infolist;
+
 use Filament\Support\Enums\FontWeight;
 
 class ChangeResource extends Resource
@@ -45,6 +50,18 @@ class ChangeResource extends Resource
     protected static ?string $modelLabel = 'Alteração';
 
     protected static ?int $navigationSort = 2;
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        if (!auth()->user()->hasPermissionTo('can_see_all_projects')) {
+            $query->where('user_id', auth()->id());
+        }
+
+        return $query;
+    }
+
     public static function form(Form $form): Form
     {
         $user = Auth::user();
@@ -172,7 +189,14 @@ class ChangeResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->visible(
+                        //fn (Change $record) => !$record->approved
+                        function (Change $record) {
+                            $user = Auth::user();
+                            return $user->can('can_see_all_projects');
+                        }
+                    ),
                 Action::make('approve')
                     ->label('Aprovar')
                     ->icon('heroicon-o-check-circle')
@@ -223,73 +247,108 @@ class ChangeResource extends Resource
     {
         return $infolist
             ->schema([
-                TextEntry::make('project.name')
-                    ->label('Projecto')
-                    ->badge()
-                    ->color('success')
-                    ->weight(FontWeight::Bold)
-                    ->size(TextEntrySize::Large),
-                //->url(fn (Change $record) => route('projects.show', $record->project_id)),
-
-                TextEntry::make('user.name')
-                    ->label('Utilizador')
-                    ->weight(FontWeight::Bold)
-                    ->badge(),
-
-                TextEntry::make('title')
-                    ->label('Título')
-                    ->weight(FontWeight::Bold)
-                    ->size(TextEntrySize::Large)
-                    ->badge()
-                    ->color('info')
-                    ->extraAttributes(['class' => 'font-bold text-lg']),
-
-                TextEntry::make('approved')
-                    ->label('Aprovação')
-                    ->weight(FontWeight::Bold)
-                    ->icon(
-                        fn (Change $record) => $record->approved ? 'heroicon-o-check-circle' : 'heroicon-o-x-circle'
-                    )
-                    ->badge()
-                    ->getStateUsing(
-                        fn (Change $record) => $record->approved ? 'Aprovado' : 'Pendente'
-                    )
-                    ->color(
-                        fn (Change $record) => $record->approved ? 'success' : 'danger'
-                    )
-                    ->extraAttributes(['class' => 'text-gray-500'])
-                    ->visible(fn (Change $record) => $record->approved ? 'Aprovado' : 'Pendente'),
-
-
-                TextEntry::make('description')
-                    ->label('Descrição')
-                    ->html()
-                    ->columnSpanFull()
-                    ->extraAttributes(['class' => 'prose']),
-
-                TextEntry::make('timestamp')
-                    ->label('Data de Alteração')
-                    //->displayFormat('d/m/Y H:i:s')
-                    ->extraAttributes(['class' => 'text-gray-500']),
-
-                ImageEntry::make('attachment')
-                    ->label('Anexo')
-                    ->square()
-                    ->disk('public')
-                    ->extraAttributes(['class' => 'rounded-md shadow border border-gray-300 dark:border-gray-700 dark:bg-gray-900'])
-                    ->columnSpanFull()
-
-                    ->extraImgAttributes([
-                        'alt' => 'Anexos da Alteração',
-                        'loading' => 'lazy',
+                Section::make('Informações do Projeto')
+                    ->schema([
+                        Grid::make()
+                            ->schema([
+                                TextEntry::make('project.name')
+                                    ->label('Projecto')
+                                    ->badge()
+                                    ->color('success')
+                                    ->weight(FontWeight::Bold)
+                                    ->size(TextEntrySize::Large),
+                                TextEntry::make('user.name')
+                                    ->label('Utilizador')
+                                    ->weight(FontWeight::Bold)
+                                    ->badge(),
+                            ])
+                            ->columns(2),
                     ])
-                    ->width('100%')
-                    ->height('full'),
+                    ->columns(1),
 
-                TextEntry::make('reason')
-                    ->label('Motivo')
-                    ->columnSpanFull()
-                    ->extraAttributes(['class' => 'text-gray-700']),
+                Section::make('Detalhes da Alteração')
+                    ->schema([
+                        TextEntry::make('title')
+                            ->label('Título')
+                            ->weight(FontWeight::Bold)
+                            ->size(TextEntrySize::Large)
+                            ->badge()
+                            ->color('info')
+                            ->extraAttributes(['class' => 'font-bold text-lg']),
+                        
+                        TextEntry::make('description')
+                            ->label('Descrição')
+                            ->html()
+                            ->columnSpanFull()
+                            ->extraAttributes(['class' => 'prose']),
+                        
+                        TextEntry::make('reason')
+                            ->label('Motivo')
+                            ->columnSpanFull()
+                            ->extraAttributes(['class' => 'text-gray-700']),
+                        
+                        TextEntry::make('timestamp')
+                            ->label('Data de Alteração')
+                            ->extraAttributes(['class' => 'text-gray-500']),
+                    ])
+                    ->columns(1),
+
+                Section::make('Status da Aprovação')
+                    ->schema([
+                        TextEntry::make('approved')
+                            ->label('Aprovação')
+                            ->weight(FontWeight::Bold)
+                            ->icon(fn (Change $record) => $record->approved ? 'heroicon-o-check-circle' : 'heroicon-o-x-circle')
+                            ->badge()
+                            ->getStateUsing(fn (Change $record) => $record->approved ? 'Aprovado' : 'Pendente')
+                            ->color(fn (Change $record) => $record->approved ? 'success' : 'danger')
+                            ->extraAttributes(['class' => 'text-gray-500'])
+                            ->visible(fn (Change $record) => $record->approved ? 'Aprovado' : 'Pendente'),
+                            ])
+                    ->columns(1),
+
+                Section::make('Anexos')
+                    ->schema([
+                        ImageEntry::make('attachment')
+                            ->label('Anexo')
+                            ->square()
+                            ->disk('public')
+                            ->extraAttributes(['class' => 'rounded-md shadow border border-gray-300 dark:border-gray-700 dark:bg-gray-900'])
+                            ->columnSpanFull()
+                            ->extraImgAttributes([
+                                'alt' => 'Anexos da Alteração',
+                                'loading' => 'lazy',
+                            ])
+                            ->width('100%')
+                            ->height('full'),
+                    ])
+                    ->columns(1),
+
+                Section::make('Ações')
+                    ->visible(
+                        function (Change $record) {
+                            $user = Auth::user();
+                            return !$record->approved && $user->can('can_approve');
+                        }
+                    )
+                    ->schema([
+                        InfolistActions::make([
+                            InfoListAction::make('approve')
+                                ->label('Aprovar Alteração')
+                                ->icon('heroicon-o-check-circle')
+                                ->requiresConfirmation()
+                                ->action(function (Change $record) {
+                                    $record->approved = true;
+                                    $record->save();
+                                })
+                                ->color('success')
+                                ->visible(function (Change $record) {
+                                    $user = Auth::user();
+                                    return !$record->approved && $user->can('can_approve');
+                                }),
+                        ]),
+                    ])
+                    ->columns(1),
             ])
             ->columns(2);
     }

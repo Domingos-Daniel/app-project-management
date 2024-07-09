@@ -5,6 +5,7 @@ namespace App\Filament\Resources\ChangeResource\Pages;
 use App\Filament\Resources\ChangeResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
+use Illuminate\Support\Facades\Auth;
 
 class ViewChange extends ViewRecord
 {
@@ -13,7 +14,8 @@ class ViewChange extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\EditAction::make(),
+            Actions\EditAction::make()
+            ->visible(fn () => Auth::user()->hasPermissionTo('can_see_all_projects')),
         ];
     }
 }
