@@ -23,9 +23,14 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\MarkdownEditor;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
+use Filament\Infolists\Components\ImageEntry;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Tables\Actions\Action;
 use Illuminate\Database\Eloquent\Collection;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Filament\Infolists\Infolist;
 
 class ChangeResource extends Resource
 {
@@ -103,9 +108,22 @@ class ChangeResource extends Resource
                                 ->displayFormat('d/m/Y H:i:s')
                                 ->default(now())
                                 ->required(),
-                            TextInput::make('attachment')
-                                ->maxLength(255)
-                                ->label("Anexo"),
+                            FileUpload::make('attachment')
+                                ->label("Anexo (PDF, PNG, JPG, etc.)")
+                                ->image()
+                                ->multiple()
+                                ->acceptedFileTypes(['application/pdf', 'image/*'])
+                                ->maxSize(1024 * 1024) // 1MB
+                                ->directory('attachments')
+                                ->imageEditor()
+                                ->imageEditorMode(2)
+                                ->imageEditorAspectRatios([
+                                    null,
+                                    '16:9',
+                                    '4:3',
+                                    '1:1',
+                                ])
+                                ->reorderable(),
                             Textarea::make('reason')
                                 ->columnSpanFull(),
                         ]),
@@ -180,7 +198,8 @@ class ChangeResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                     Action::make('approveSelected')
                         ->label('Aprovar Selecionados')
-                        ->action(function (Collection $records) {
+                        ->action(
+                            function (Collection $records) {
                             foreach ($records as $record) {
                                 $record->approved = true;
                                 $record->save();
@@ -200,6 +219,52 @@ class ChangeResource extends Resource
 
             ]);
     }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+        ->schema([
+            TextEntry::make('project.name')
+                ->label('Projecto'),
+                //->url(fn (Change $record) => route('projects.show', $record->project_id)),
+            
+            TextEntry::make('user.name')
+                ->label('Utilizador'),
+
+            TextEntry::make('title')
+                ->label('Título')
+                ->extraAttributes(['class' => 'font-bold text-lg']),
+
+                TextEntry::make('description')
+                ->label('Descrição')
+                ->columnSpanFull()
+                ->extraAttributes(['class' => 'prose']),
+
+                TextEntry::make('timestamp')
+                ->label('Data de Alteração')
+                //->displayFormat('d/m/Y H:i:s')
+                ->extraAttributes(['class' => 'text-gray-500']),
+
+            ImageEntry::make('attachment')
+                ->label('Anexo')
+                ->square()
+                ->columnSpanFull()
+                
+                ->extraImgAttributes([
+                    'alt' => 'Logo',
+                    'loading' => 'lazy',
+                ])
+                ->width(200),
+                //->directory('attachments')
+                //->downloadable(),
+
+                TextEntry::make('reason')
+                ->label('Motivo')
+                ->columnSpanFull()
+                ->extraAttributes(['class' => 'text-gray-700']),
+        ])
+        ->columns(2);
+}
 
     public static function getRelations(): array
     {

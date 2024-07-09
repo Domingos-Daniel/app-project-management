@@ -20,6 +20,10 @@ class Change extends Model
         'reason'
     ];
 
+    protected $casts = [
+        'attachment' => 'array',
+    ];
+
     public function project()
     {
         return $this->belongsTo(Project::class);
