@@ -111,6 +111,7 @@ class ChangeResource extends Resource
                             FileUpload::make('attachment')
                                 ->label("Anexo (PDF, PNG, JPG, etc.)")
                                 ->image()
+                                ->disk('public')
                                 ->multiple()
                                 ->acceptedFileTypes(['application/pdf', 'image/*'])
                                 ->maxSize(1024 * 1024) // 1MB
