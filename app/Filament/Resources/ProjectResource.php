@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProjectResource\Pages;
 use App\Filament\Resources\ProjectResource\RelationManagers;
+use App\Filament\Resources\ProjectResource\RelationManagers\ChangesRelationManager;
 use App\Models\Project;
 use App\Models\ProjectUser;
 use App\Models\User;
@@ -22,6 +23,7 @@ use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 
 class ProjectResource extends Resource
 {
@@ -33,7 +35,7 @@ class ProjectResource extends Resource
     protected static ?string $pluralModelLabel = 'Projectos';
     protected static ?string $modelLabel = 'Projeto';
 
-    
+
     protected static ?string $recordTitleAttribute = 'name';
 
     protected static ?int $navigationSort = 1;
@@ -200,7 +202,8 @@ class ProjectResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->visible(fn () => Auth::user()->hasPermissionTo('project_update')),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -328,7 +331,7 @@ class ProjectResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            ChangesRelationManager::class,
         ];
     }
 
