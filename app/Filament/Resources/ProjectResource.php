@@ -44,6 +44,21 @@ class ProjectResource extends Resource
         return static::getModel()::count();
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        if (!auth()->user()->hasPermissionTo('can_see_all_projects')) {
+            $query->whereIn('id', function ($query) {
+                $query->select('project_id')
+                    ->from('project_users')
+                    ->where('user_id', auth()->id());
+            });
+        }
+
+        return $query;
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -111,17 +126,43 @@ class ProjectResource extends Resource
                     ->searchable()
                     ->badge()
                     ->color('info')
-                    ->getStateUsing(fn (Project $record) => User::find($record->supervisor_id)->name)
+                    ->getStateUsing(
+                        fn (Project $record) => User::find($record->supervisor_id)->name
+                        )
                     ->label("Supervisor")
                     ->sortable(),
+                Tables\Columns\TextColumn::make('assigned_to')
+                    ->searchable()
+                    ->sortable()
+                    ->badge()
+                    ->color(
+                        fn (Project $record): string => ProjectUser::where('project_id', $record->getKey())->first() ? 'success' : 'danger'
+                    )
+                    ->label("Atribuído a")
+                    ->getStateUsing(
+                        function (Project $record): string {
+                        $projectUser = ProjectUser::where('project_id', $record->getKey())->first();
+                        if ($projectUser) {
+                            return $projectUser->user->name;
+                        }
+                        return 'Sem atribuição'; // Tratamento caso não encontre um usuário associado ao projeto
+                    }),
                 Tables\Columns\TextColumn::make('end_date')
                     ->date()
+                    ->label("Data de Entrega")
                     ->sortable(),
                 Tables\Columns\TextColumn::make('actual_end_date')
+                    ->label("Data de Início")
                     ->date()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('budget')
                     ->numeric()
+                    ->label("Orçamento")
+                    ->badge()
+                    ->getStateUsing(
+                        fn (Project $record) => '$ ' . number_format($record->budget, 2, ',', '.')
+                    )
+                    ->color('success')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')
                     ->searchable()
