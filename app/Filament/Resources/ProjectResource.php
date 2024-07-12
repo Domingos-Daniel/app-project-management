@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
+use Parallax\FilamentComments\Tables\Actions\CommentsAction;
 
 class ProjectResource extends Resource
 {
@@ -243,6 +244,7 @@ class ProjectResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
+                CommentsAction::make(),
                 Tables\Actions\EditAction::make()
                     ->visible(fn () => Auth::user()->hasPermissionTo('project_update')),
             ])

@@ -6,6 +6,7 @@ use App\Filament\Resources\ProjectResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
 use Illuminate\Support\Facades\Auth;
+use Parallax\FilamentComments\Actions\CommentsAction;
 
 class ViewProject extends ViewRecord
 {
@@ -16,6 +17,7 @@ class ViewProject extends ViewRecord
         return [
             Actions\EditAction::make()
             ->visible(fn () => Auth::user()->hasPermissionTo('project_update')),
+            CommentsAction::make(),
         ];
     }
 }

@@ -40,6 +40,7 @@ use Filament\Infolists\Infolist;
 use Filament\Support\Enums\FontWeight;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Model;
+use Parallax\FilamentComments\Tables\Actions\CommentsAction;
 
 class ChangeResource extends Resource
 {
@@ -200,6 +201,8 @@ class ChangeResource extends Resource
                             return $user->can('can_see_all_projects');
                         }
                     ),
+                    
+                CommentsAction::make(),
                 Action::make('approve')
                     ->label('Aprovar')
                     ->icon('heroicon-o-check-circle')
@@ -209,12 +212,28 @@ class ChangeResource extends Resource
                     })
                     ->requiresConfirmation()
                     ->color('success')
-                    ->visible(
+                    ->disabled(
                         //fn (Change $record) => !$record->approved
                         function (Change $record) {
 
                             $user = Auth::user();
-                            return !$record->approved && $user->can('can_approve');
+                            if ($user->can('can_approve')) {
+                                if ($record->approved) {
+                                    return true;
+                                }else {
+                                    return false;
+                                }
+                            }else {
+                                return true;
+                            }
+                            //return !$record->approved && $user->can('can_approve');
+                        }
+                    )
+                    ->visible(
+                        //fn (Change $record) => !$record->approved
+                        function (Change $record) {
+                            $user = Auth::user();
+                            return $user->can('can_approve');
                         }
                     ),
             ])

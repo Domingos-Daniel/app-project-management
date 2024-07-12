@@ -6,6 +6,7 @@ use App\Filament\Resources\ChangeResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
 use Illuminate\Support\Facades\Auth;
+use Parallax\FilamentComments\Actions\CommentsAction;
 
 class ViewChange extends ViewRecord
 {
@@ -16,6 +17,7 @@ class ViewChange extends ViewRecord
         return [
             Actions\EditAction::make()
             ->visible(fn () => Auth::user()->hasPermissionTo('can_see_all_projects')),
+            CommentsAction::make(),
         ];
     }
 }
