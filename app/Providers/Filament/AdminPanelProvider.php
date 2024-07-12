@@ -2,6 +2,8 @@
 
 namespace App\Providers\Filament;
 
+use Edwink\FilamentUserActivity\FilamentUserActivityPlugin;
+use Edwink\FilamentUserActivity\Models\UserActivity;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -63,8 +65,10 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                \Edwink\FilamentUserActivity\Http\Middleware\RecordUserActivity::class,
             ])
             ->plugins([
+                FilamentUserActivityPlugin::make(),
                 FilamentEditProfilePlugin::make()
                     ->slug('my-profile')
                     ->setTitle('Meu Perfil')
