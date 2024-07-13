@@ -6,12 +6,14 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "aymanalhattami/filament-slim-scrollbar": "^2.0",
         "edwink/filament-user-activity": "^1.0",
         "filament/filament": "^3.2",
         "joaopaulolndev/filament-edit-profile": "^1.0",
         "laravel/framework": "^11.9",
         "laravel/tinker": "^2.9",
         "lucascudo/laravel-pt-br-localization": "^2.2",
+        "njxqlus/filament-progressbar": "^1.0",
         "parallax/filament-comments": "^1.3",
         "spatie/laravel-permission": "^6.9"
     },

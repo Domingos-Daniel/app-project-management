@@ -22,6 +22,7 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Joaopaulolndev\FilamentEditProfile\FilamentEditProfilePlugin;
 use Joaopaulolndev\FilamentEditProfile\Pages\EditProfilePage;
+use Njxqlus\FilamentProgressbar\FilamentProgressbarPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -68,12 +69,13 @@ class AdminPanelProvider extends PanelProvider
                 \Edwink\FilamentUserActivity\Http\Middleware\RecordUserActivity::class,
             ])
             ->plugins([
+                FilamentProgressbarPlugin::make()->color('#29b'),
                 FilamentUserActivityPlugin::make(),
                 FilamentEditProfilePlugin::make()
                     ->slug('my-profile')
                     ->setTitle('Meu Perfil')
                     ->setNavigationLabel('Meu Perfil')
-                    ->setNavigationGroup('Group Profile')
+                    ->setNavigationGroup('Meu Perfil')
                     ->setIcon('heroicon-o-user')
                     ->setSort(10)
                     // ->shouldRegisterNavigation(false)
