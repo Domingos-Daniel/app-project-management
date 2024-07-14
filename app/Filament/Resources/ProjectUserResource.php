@@ -9,8 +9,8 @@ use App\Models\ProjectUser;
 use App\Models\Role;
 use App\Models\User;
 use Filament\Forms;
-use Filament\Forms\Components\Grid;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\Grid;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\TextEntry\TextEntrySize;
@@ -41,7 +41,9 @@ class ProjectUserResource extends Resource
                     ->autofocus()
                     ->native(false)
                     ->options(
-                        Project::all()->pluck('name', 'id')->toArray()
+                        Project::all()->pluck('name', 'id')
+                        //->where('end_date', '<', now())
+                        ->toArray()
                     ),
                 Forms\Components\Select::make('user_id')
                     ->label("Utilizador")
@@ -174,10 +176,20 @@ class ProjectUserResource extends Resource
             ]);
     }
 
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
+    }
+
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ManageProjectUsers::route('/'),
+            'index' => Pages\ListProjectUsers::route('/'),
+            'create' => Pages\CreateProjectUser::route('/create'),
+            'view' => Pages\ViewProjectUser::route('/{record}'),
+            'edit' => Pages\EditProjectUser::route('/{record}/edit'),
         ];
     }
 }

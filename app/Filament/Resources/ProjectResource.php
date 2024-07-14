@@ -26,6 +26,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
 use Parallax\FilamentComments\Tables\Actions\CommentsAction;
 
+use function Laravel\Prompts\error;
+
 class ProjectResource extends Resource
 {
     protected static ?string $model = Project::class;
@@ -66,6 +68,8 @@ class ProjectResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('name')
                     ->required()
+                    ->unique()
+                    ->autocapitalize('words')
                     ->autofocus()
                     ->label("Nome")
                     ->maxLength(255),
@@ -80,11 +84,27 @@ class ProjectResource extends Resource
                     ->searchable()
                     ->required()
                     ->native(false),
+                Forms\Components\DatePicker::make('actual_end_date')
+                    ->required()
+                    ->closeOnDateSelection()
+                    ->native(false)
+                    ->prefixIcon('heroicon-o-calendar')
+                    ->prefixIconColor('info')
+                    ->displayFormat('d/m/Y')
+                    ->default(now())
+                    ->label("Data de Início"),
 
                 Forms\Components\DatePicker::make('end_date')
-                    ->required(),
-                Forms\Components\DatePicker::make('actual_end_date'),
+                    ->required()
+                    ->closeOnDateSelection()
+                    ->displayFormat('d/m/Y')
+                    ->prefixIcon('heroicon-o-calendar')
+                    ->prefixIconColor('info')
+                    ->native(false)
+                    ->afterOrEqual('actual_end_date')
+                    ->label("Data de Fim / Previsão de Entrega"), 
                 Forms\Components\TextInput::make('budget')
+                    ->label("Orcamento")
                     ->numeric(),
                 Forms\Components\Select::make('status')
                     ->required()

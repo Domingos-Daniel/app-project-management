@@ -13,6 +13,7 @@ use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 use Filament\Panel;
 use Illuminate\Support\Facades\Storage;
+use TomatoPHP\FilamentAlerts\Traits\InteractsWithNotifications;
 
 class User extends Authenticatable implements FilamentUser, HasAvatar
 {

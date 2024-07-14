@@ -33,7 +33,7 @@ class Project extends Model
 
     public function users()
     {
-        return $this->belongsToMany(User::class, 'project_user')
+        return $this->belongsToMany(User::class, 'project_users')
             ->using(ProjectUser::class)
             ->withTimestamps();
     }
@@ -41,5 +41,10 @@ class Project extends Model
     public function projectUsers()
     {
         return $this->hasMany(ProjectUser::class, 'project_id', 'id');
+    }
+
+    public function assignedUser()
+    {
+        return $this->belongsTo(User::class, 'user_id'); // Supondo que o campo user_id no projeto seja para o usuário atribuído
     }
 }
