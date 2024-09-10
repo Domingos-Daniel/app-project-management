@@ -69,6 +69,7 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
                 \Edwink\FilamentUserActivity\Http\Middleware\RecordUserActivity::class,
             ])
+            ->databaseNotifications()
             ->plugins([
                 SpatieLaravelTranslatablePlugin::make(),
                 //\TomatoPHP\FilamentSettingsHub\FilamentSettingsHubPlugin::make(),

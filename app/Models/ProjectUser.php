@@ -19,6 +19,10 @@ class ProjectUser extends Pivot
         'is_active'
     ];
 
+    protected $casts = [
+        'user_id' => 'integer'
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');

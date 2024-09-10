@@ -10,3 +10,6 @@ Route::get('/', function () {
 });
 
 
+Route::redirect('/', '/admin');
+
+

@@ -1,79 +1,33 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
+
 <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Novo Projeto Atribuído</title>
-    <style>
-        body {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            background-color: #f5f5f5;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .container {
-            max-width: 600px;
-            margin: 20px;
-            padding: 20px;
-            background-color: #ffffff;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #333;
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-        p {
-            color: #666;
-            line-height: 1.6;
-        }
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        li {
-            margin-bottom: 10px;
-            color: #333;
-        }
-        li strong {
-            color: #555;
-        }
-        .header {
-            background-color: #007bff;
-            color: #ffffff;
-            padding: 10px;
-            border-radius: 10px 10px 0 0;
-            text-align: center;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 20px;
-            color: #999;
-        }
-    </style>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>{{ $project->name }}</h1>
+
+<body style="font-family: Arial, sans-serif; line-height: 1.6; background-color: #f4f4f4; padding: 0; margin: 0;">
+    <div style="max-width: 600px; margin: 20px auto; padding: 20px; background-color: #ffffff; border: 1px solid #dddddd; border-radius: 5px;">
+        <div style="background-color: #007bff; color: #ffffff; padding: 15px; text-align: center; border-radius: 5px 5px 0 0;">
+            <h1 style="font-size: 24px; margin: 0;">{{ $project->name }}</h1>
         </div>
-        <p>Você foi atribuído a um novo projeto.</p>
-        <p>Detalhes:</p>
-        <ul>
-            <li><strong>Nome do Projeto:</strong> {{ $project->name }}</li>
-            <li><strong>Descrição:</strong> {{ $project->description }}</li>
-            <li><strong>Data de Entrega:</strong> {{ $project->end_date }}</li>
-            <li><strong>Grau de Prioridade:</strong> {{ $project->priority }}</li>
-            <li><strong>Supervisor:</strong> {{ $project->supervisor->name }}</li>
-            <li><strong>Data de Atribuição:</strong> {{ $project->created_at }}</li>
-        </ul>
-        <div class="footer">
-            <p>&copy; {{ date('Y') }} SafeQ. Todos os direitos reservados.</p>
+        <div style="padding: 20px;">
+            <p style="color: #333333; font-size: 16px;">Você foi atribuído a um novo projeto.</p>
+            <p style="color: #333333; font-size: 16px;">Aqui estão os detalhes do projeto:</p>
+            <ul style="list-style-type: none; padding: 0;">
+                <li style="color: #333333; font-size: 16px; margin-bottom: 10px;"><strong>Nome do Projeto:</strong> {{ $project->name }}</li>
+                <li style="color: #333333; font-size: 16px; margin-bottom: 10px;"><strong>Descrição:</strong> {{ $project->description }}</li>
+                <li style="color: #333333; font-size: 16px; margin-bottom: 10px;"><strong>Data de Entrega:</strong> {{ $project->end_date }}</li>
+                <li style="color: #333333; font-size: 16px; margin-bottom: 10px;"><strong>Grau de Prioridade:</strong> {{ $project->priority }}</li>
+                <li style="color: #333333; font-size: 16px; margin-bottom: 10px;"><strong>Supervisor:</strong> {{ $project->supervisor->name }}</li>
+                <li style="color: #333333; font-size: 16px; margin-bottom: 10px;"><strong>Data de Atribuição:</strong> {{ $project->created_at }}</li>
+            </ul>
+        </div>
+        <div style="text-align: center; padding: 15px; background-color: #f9f9f9; border-top: 1px solid #dddddd; border-radius: 0 0 5px 5px;">
+            <p style="color: #777777; font-size: 14px;">&copy; {{ date('Y') }} SafeQ. Todos os direitos reservados.</p>
         </div>
     </div>
 </body>
+
 </html>

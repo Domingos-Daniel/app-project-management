@@ -1,0 +1,1 @@
+<style>:root {--filament-progressbar-color: #29b}</style>

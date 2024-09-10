@@ -25,6 +25,7 @@ use Filament\Forms\Components\MarkdownEditor;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TimePicker;
 use Filament\Infolists\Components\Actions as InfolistActions;
 use Filament\Infolists\Components\Actions\Action as InfoListAction;
 use Filament\Infolists\Components\Grid;
@@ -132,6 +133,9 @@ class ChangeResource extends Resource
                                 ->displayFormat('d/m/Y H:i:s')
                                 ->default(now())
                                 ->required(),
+                            TextInput::make('thora')
+                                ->label("Total de Horas")
+                                ->numeric(),
                             FileUpload::make('attachment')
                                 ->label("Anexo (PDF, PNG, JPG, etc.)")
                                 ->image()
@@ -142,6 +146,10 @@ class ChangeResource extends Resource
                                 ->directory('attachments')
                                 ->imageEditor()
                                 ->imageEditorMode(2)
+                                ->rules(
+                                    'max:1024',
+                                    'mimetypes:application/pdf,image/*'
+                                )
                                 ->reorderable(),
                             Textarea::make('reason')
                                 ->columnSpanFull(),
@@ -336,7 +344,7 @@ class ChangeResource extends Resource
                             ->square()
                             ->disk('public')
                             ->extraAttributes(['class' => 'rounded-md shadow border border-gray-300 dark:border-gray-700 dark:bg-gray-900'])
-                            ->columnSpanFull()
+                            ->columnSpanFull() 
                             ->extraImgAttributes([
                                 'alt' => 'Anexos da Alteração',
                                 'loading' => 'lazy',

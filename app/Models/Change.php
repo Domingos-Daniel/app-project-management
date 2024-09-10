@@ -18,7 +18,8 @@ class Change extends Model
         'approved',
         'timestamp',
         'attachment',
-        'reason'
+        'reason',
+        'thora'
     ];
 
     protected $casts = [
