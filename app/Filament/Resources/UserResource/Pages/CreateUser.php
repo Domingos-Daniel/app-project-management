@@ -9,6 +9,7 @@ use App\Mail\WelcomeNewUser;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Filament\Notifications\Notification;
+use Filament\Notifications\Actions\Action;
 
 class CreateUser extends CreateRecord
 {
@@ -18,14 +19,13 @@ class CreateUser extends CreateRecord
 
     protected function afterCreate()
     {
-        $password = Str::random(8); // Gere uma senha temporária aleatória
-        $this->record->password = bcrypt($password); // Criptografe a senha e salve no banco
-        $this->record->save();
+       // $password = $this->record->password; // Gere uma senha temporária aleatória
+        $temp = '12345678';
     
         // Enviar email de boas-vindas para o usuário cadastrado
         try {
             Mail::to($this->record->email)
-                ->send(new WelcomeNewUser($this->record, $password));
+                ->send(new WelcomeNewUser($this->record, $temp));
     
             // Notificar sucesso no envio
             Notification::make()
@@ -36,7 +36,7 @@ class CreateUser extends CreateRecord
             Notification::make()
                 ->success()
                 ->title('Bem Vindo '. $this->record->name)
-                ->body('Bem vindo ao sistema. Aconselhamos a alterar a sua palavra-passe. A sua palavra-passe temporária é: ' . $password)
+                ->body('Bem vindo ao sistema. Aconselhamos a alterar a sua palavra-passe.')
                 ->persistent()
                 ->sendToDatabase($this->record);
 
@@ -50,7 +50,7 @@ class CreateUser extends CreateRecord
                 Notification::make()
                 ->success()
                 ->title('Bem Vindo '. $this->record->name)
-                ->body('Bem vindo ao sistema. Aconselhamos a alterar a sua palavra-passe. A sua palavra-passe temporária é: ' . $password)
+                ->body('Bem vindo ao sistema. Aconselhamos a alterar a sua palavra-passe.')
                 ->persistent()
                 ->sendToDatabase($this->record);
         }
