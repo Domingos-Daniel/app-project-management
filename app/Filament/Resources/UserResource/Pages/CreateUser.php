@@ -18,8 +18,6 @@ class CreateUser extends CreateRecord
 
     protected function afterCreate()
     {
-        $id_user = $this->record->id;
-        // Definir uma senha temporária
         $password = Str::random(8); // Gere uma senha temporária aleatória
         $this->record->password = bcrypt($password); // Criptografe a senha e salve no banco
         $this->record->save();
@@ -39,14 +37,8 @@ class CreateUser extends CreateRecord
                 ->success()
                 ->title('Bem Vindo '. $this->record->name)
                 ->body('Bem vindo ao sistema. Aconselhamos a alterar a sua palavra-passe. A sua palavra-passe temporária é: ' . $password)
-                ->actions([
-                    Actions\Action::make('Alterar Palavra-Passe')
-                        ->url(fn () => route('filament.admin.pages.my-profile'))
-                        ->openInNewTab(),
-                ])
                 ->persistent()
-                ->inline()
-                ->sendToDatabase($id_user);
+                ->sendToDatabase($this->record);
 
         } catch (\Exception $e) {
             // Notificar erro no envio
@@ -54,6 +46,13 @@ class CreateUser extends CreateRecord
                 ->danger()
                 ->title('Erro ao enviar email para ' . $this->record->email . ': ' . $e->getMessage())
                 ->send();
+
+                Notification::make()
+                ->success()
+                ->title('Bem Vindo '. $this->record->name)
+                ->body('Bem vindo ao sistema. Aconselhamos a alterar a sua palavra-passe. A sua palavra-passe temporária é: ' . $password)
+                ->persistent()
+                ->sendToDatabase($this->record);
         }
     }
 
